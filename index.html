@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Eventos - Bibliotecas SBC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-header {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+        }
+        .gradient-button {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+        }
+        .gradient-button:hover {
+            background: linear-gradient(to right, #1d4ed8, #1e40af);
+        }
+        .rainbow-bar {
+            background: linear-gradient(to bottom, #fb923c, #fbbf24, #4ade80);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
+    
+    <!-- Header -->
+    <div class="gradient-header text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-center gap-4">
+                <div class="w-1 h-16 rainbow-bar rounded-full"></div>
+                <div>
+                    <h1 class="text-3xl font-bold">Sistema de Eventos Culturais</h1>
+                    <p class="text-blue-100 mt-1">Bibliotecas Públicas de São Bernardo do Campo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Principal -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Filtros e Ações -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Biblioteca</label>
+                    <select id="filtroBiblioteca" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todas as Bibliotecas</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Buscar Evento</label>
+                    <input type="text" id="campoBusca" placeholder="Digite o nome do evento..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div class="flex items-end gap-2">
+                    <button onclick="abrirFormulario()" class="flex-1 gradient-button text-white px-4 py-2 rounded-lg transition-all font-medium">
+                        ➕ Novo Evento
+                    </button>
+                    <button onclick="exportarDados()" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-all" title="Exportar Programação">
+                        ⬇️
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulário -->
+        <div id="formularioEvento" class="bg-white rounded-lg shadow-lg p-6 mb-6 border-l-4 border-blue-600 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    📅 <span id="tituloFormulario">Cadastrar Novo Evento</span>
+                </h2>
+                <button onclick="fecharFormulario()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Biblioteca <span class="text-red-500">*</span></label>
+                    <select id="biblioteca" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do Evento <span class="text-red-500">*</span></label>
+                    <input type="text" id="nomeEvento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Digite o nome do evento" required>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo do Evento (opcional)</label>
+                    <input type="text" id="subtitulo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Digite o subtítulo">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Linguagem Cultural <span class="text-red-500">*</span></label>
+                    <select id="linguagemCultural" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Classificação Etária</label>
+                    <select id="classificacaoEtaria" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição do Evento</label>
+                    <textarea id="descricao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Descreva o evento..."></textarea>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Link (opcional)</label>
+                    <input type="url" id="link" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="https://">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Data do Evento <span class="text-red-500">*</span></label>
+                    <input type="date" id="dataInicial" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Horário</label>
+                    <input type="time" id="horario" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">O evento é gratuito?</label>
+                    <select id="gratuito" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="Sim">Sim</option>
+                        <option value="Não">Não</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Frequência do Evento</label>
+                    <select id="frequencia" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Total de Público (opcional)</label>
+                    <input type="number" id="totalPublico" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 50">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Telefone para Informações (opcional)</label>
+                    <input type="tel" id="telefone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="(11) 1234-5678">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Informações sobre Inscrição (opcional)</label>
+                    <textarea id="inscricao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="2" placeholder="Como fazer a inscrição..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Acessibilidade - Libras</label>
+                    <select id="libras" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Acessibilidade - Áudio Descrição</label>
+                    <select id="audioDescricao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tags do Evento (separadas por vírgula)</label>
+                    <input type="text" id="tags" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: literatura, infantil, contação de histórias">
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-3 justify-end">
+                <button onclick="fecharFormulario()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">Cancelar</button>
+                <button onclick="salvarEvento()" class="px-6 py-2 gradient-button text-white rounded-lg transition-all font-medium">
+                    <span id="btnSalvarTexto">Cadastrar Evento</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lista de Eventos -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    📚 Eventos Cadastrados <span id="contadorEventos" class="text-lg text-gray-500 font-normal">(0)</span>
+                </h2>
+            </div>
+            <div id="listaEventos"></div>
+        </div>
+    </div>
+
+    <script>
+        // Dados do sistema
+        const bibliotecas = [
+            'Biblioteca de Arte Ilva Aceto Maranesi',
+            'Biblioteca Erico Veríssimo',
+            'Biblioteca Guimarães Rosa',
+            'Biblioteca Machado de Assis',
+            'Biblioteca Malba Tahan',
+            'Biblioteca Manuel Bandeira',
+            'Biblioteca Monteiro Lobato',
+            'Espalhando à Leitura',
+            'Gibiteca Eugênio Colonnese',
+            'Troca Livro'
+        ];
+
+        const linguagensCulturais = [
+            'Artes Circenses', 'Artes Integradas', 'Artes Visuais', 'Audiovisual', 'Cinema',
+            'Cultura Digital', 'Cultura Indígena', 'Cultura Tradicional', 'Curso ou Oficina',
+            'Dança', 'Exposição', 'Hip Hop', 'Livro e Literatura', 'Música Erudita',
+            'Música Popular', 'Outros', 'Palestra, Debate ou Encontro', 'Rádio', 'Teatro'
+        ];
+
+        const classificacoesEtarias = ['Livre', '10 anos', '12 anos', '14 anos', '16 anos', '18 anos'];
+        const frequencias = ['Uma vez', 'Semanal', 'Todos os dias'];
+        const opcoesSN = ['Sim', 'Não', 'Não Informado'];
+
+        let eventos = [];
+        let eventoEditandoId = null;
+
+        // Inicializar sistema
+        function inicializar() {
+            preencherSelects();
+            carregarEventos();
+            
+            document.getElementById('filtroBiblioteca').addEventListener('change', renderizarEventos);
+            document.getElementById('campoBusca').addEventListener('input', renderizarEventos);
+        }
+
+        function preencherSelects() {
+            const selectBiblioteca = document.getElementById('biblioteca');
+            const selectFiltroBiblioteca = document.getElementById('filtroBiblioteca');
+            
+            selectBiblioteca.innerHTML = '<option value="">Selecione a biblioteca</option>';
+            bibliotecas.forEach(bib => {
+                selectBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
+                selectFiltroBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
+            });
+
+            const selectLinguagem = document.getElementById('linguagemCultural');
+            selectLinguagem.innerHTML = '<option value="">Selecione a linguagem</option>';
+            linguagensCulturais.forEach(ling => {
+                selectLinguagem.innerHTML += `<option value="${ling}">${ling}</option>`;
+            });
+
+            const selectClassificacao = document.getElementById('classificacaoEtaria');
+            classificacoesEtarias.forEach(class_etaria => {
+                selectClassificacao.innerHTML += `<option value="${class_etaria}">${class_etaria}</option>`;
+            });
+
+            const selectFrequencia = document.getElementById('frequencia');
+            frequencias.forEach(freq => {
+                selectFrequencia.innerHTML += `<option value="${freq}">${freq}</option>`;
+            });
+
+            const selectLibras = document.getElementById('libras');
+            const selectAudio = document.getElementById('audioDescricao');
+            opcoesSN.forEach(op => {
+                selectLibras.innerHTML += `<option value="${op}">${op}</option>`;
+                selectAudio.innerHTML += `<option value="${op}">${op}</option>`;
+            });
+        }
+
+        function carregarEventos() {
+            const eventosStorage = localStorage.getItem('eventos-bibliotecas-sbc');
+            if (eventosStorage) {
+                eventos = JSON.parse(eventosStorage);
+            }
+            renderizarEventos();
+        }
+
+        function salvarNoStorage() {
+            localStorage.setItem('eventos-bibliotecas-sbc', JSON.stringify(eventos));
+        }
+
+        function abrirFormulario() {
+            document.getElementById('formularioEvento').classList.remove('hidden');
+            document.getElementById('tituloFormulario').textContent = 'Cadastrar Novo Evento';
+            document.getElementById('btnSalvarTexto').textContent = 'Cadastrar Evento';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function fecharFormulario() {
+            document.getElementById('formularioEvento').classList.add('hidden');
+            limparFormulario();
+        }
+
+        function limparFormulario() {
+            const filtroBiblioteca = document.getElementById('filtroBiblioteca').value;
+            
+            document.getElementById('biblioteca').value = filtroBiblioteca;
+            document.getElementById('nomeEvento').value = '';
+            document.getElementById('subtitulo').value = '';
+            document.getElementById('linguagemCultural').value = '';
+            document.getElementById('descricao').value = '';
+            document.getElementById('classificacaoEtaria').value = 'Livre';
+            document.getElementById('link').value = '';
+            document.getElementById('dataInicial').value = '';
+            document.getElementById('horario').value = '';
+            document.getElementById('gratuito').value = 'Sim';
+            document.getElementById('frequencia').value = 'Uma vez';
+            document.getElementById('totalPublico').value = '';
+            document.getElementById('telefone').value = '';
+            document.getElementById('inscricao').value = '';
+            document.getElementById('libras').value = 'Não Informado';
+            document.getElementById('audioDescricao').value = 'Não Informado';
+            document.getElementById('tags').value = '';
+            
+            eventoEditandoId = null;
+        }
+
+        function salvarEvento() {
+            const biblioteca = document.getElementById('biblioteca').value;
+            const nomeEvento = document.getElementById('nomeEvento').value;
+            const linguagemCultural = document.getElementById('linguagemCultural').value;
+            const dataInicial = document.getElementById('dataInicial').value;
+
+            if (!biblioteca || !nomeEvento || !linguagemCultural || !dataInicial) {
+                alert('Por favor, preencha os campos obrigatórios: Biblioteca, Nome do Evento, Linguagem Cultural e Data');
+                return;
+            }
+
+            const evento = {
+                id: eventoEditandoId || Date.now().toString(),
+                biblioteca: biblioteca,
+                nomeEvento: nomeEvento,
+                subtitulo: document.getElementById('subtitulo').value,
+                linguagemCultural: linguagemCultural,
+                descricao: document.getElementById('descricao').value,
+                classificacaoEtaria: document.getElementById('classificacaoEtaria').value,
+                link: document.getElementById('link').value,
+                dataInicial: dataInicial,
+                horario: document.getElementById('horario').value,
+                gratuito: document.getElementById('gratuito').value,
+                frequencia: document.getElementById('frequencia').value,
+                totalPublico: document.getElementById('totalPublico').value,
+                telefone: document.getElementById('telefone').value,
+                inscricao: document.getElementById('inscricao').value,
+                libras: document.getElementById('libras').value,
+                audioDescricao: document.getElementById('audioDescricao').value,
+                tags: document.getElementById('tags').value,
+                dataCriacao: eventoEditandoId ? eventos.find(e => e.id === eventoEditandoId).dataCriacao : new Date().toISOString()
+            };
+
+            if (eventoEditandoId) {
+                const index = eventos.findIndex(e => e.id === eventoEditandoId);
+                eventos[index] = evento;
+                alert('Evento atualizado com sucesso!');
+            } else {
+                eventos.push(evento);
+                alert('Evento cadastrado com sucesso!');
+            }
+
+            salvarNoStorage();
+            renderizarEventos();
+            fecharFormulario();
+        }
+
+        function editarEvento(id) {
+            const evento = eventos.find(e => e.id === id);
+            if (!evento) return;
+
+            eventoEditandoId = id;
+            
+            document.getElementById('biblioteca').value = evento.biblioteca;
+            document.getElementById('nomeEvento').value = evento.nomeEvento;
+            document.getElementById('subtitulo').value = evento.subtitulo;
+            document.getElementById('linguagemCultural').value = evento.linguagemCultural;
+            document.getElementById('descricao').value = evento.descricao;
+            document.getElementById('classificacaoEtaria').value = evento.classificacaoEtaria;
+            document.getElementById('link').value = evento.link;
+            document.getElementById('dataInicial').value = evento.dataInicial;
+            document.getElementById('horario').value = evento.horario;
+            document.getElementById('gratuito').value = evento.gratuito;
+            document.getElementById('frequencia').value = evento.frequencia;
+            document.getElementById('totalPublico').value = evento.totalPublico;
+            document.getElementById('telefone').value = evento.telefone;
+            document.getElementById('inscricao').value = evento.inscricao;
+            document.getElementById('libras').value = evento.libras;
+            document.getElementById('audioDescricao').value = evento.audioDescricao;
+            document.getElementById('tags').value = evento.tags;
+
+            document.getElementById('formularioEvento').classList.remove('hidden');
+            document.getElementById('tituloFormulario').textContent = 'Editar Evento';
+            document.getElementById('btnSalvarTexto').textContent = 'Atualizar Evento';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function excluirEvento(id) {
+            if (confirm('Tem certeza que deseja excluir este evento?')) {
+                eventos = eventos.filter(e => e.id !== id);
+                salvarNoStorage();
+                renderizarEventos();
+                alert('Evento excluído com sucesso!');
+            }
+        }
+
+        function renderizarEventos() {
+            const filtroBiblioteca = document.getElementById('filtroBiblioteca').value;
+            const busca = document.getElementById('campoBusca').value.toLowerCase();
+
+            const eventosFiltrados = eventos.filter(evento => {
+                const matchBiblioteca = !filtroBiblioteca || evento.biblioteca === filtroBiblioteca;
+                const matchBusca = !busca || 
+                    evento.nomeEvento.toLowerCase().includes(busca) ||
+                    evento.descricao.toLowerCase().includes(busca);
+                return matchBiblioteca && matchBusca;
+            });
+
+            const container = document.getElementById('listaEventos');
+            document.getElementById('contadorEventos').textContent = `(${eventosFiltrados.length})`;
+
+            if (eventosFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                        <div class="text-6xl mb-4">📅</div>
+                        <p class="text-gray-500 text-lg mb-4">
+                            ${filtroBiblioteca ? 'Nenhum evento cadastrado para esta biblioteca.' : 'Nenhum evento cadastrado ainda.'}
+                        </p>
+                        <button onclick="abrirFormulario()" class="text-blue-600 hover:text-blue-700 font-medium">
+                            Cadastrar primeiro evento
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = eventosFiltrados.map(evento => {
+                const data = new Date(evento.dataInicial + 'T00:00');
+                const dataFormatada = data.toLocaleDateString('pt-BR');
+                
+                return `
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-orange-400 mb-4">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">${evento.nomeEvento}</h3>
+                                ${evento.subtitulo ? `<p class="text-gray-600 italic">${evento.subtitulo}</p>` : ''}
+                                <div class="flex flex-wrap items-center gap-2 mt-2">
+                                    <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                        ${evento.biblioteca}
+                                    </span>
+                                    <span class="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                                        ${evento.linguagemCultural}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="editarEvento('${evento.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Editar">
+                                    ✏️
+                                </button>
+                                <button onclick="excluirEvento('${evento.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Excluir">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-600"><span class="font-medium">Data:</span> ${dataFormatada}${evento.horario ? ` às ${evento.horario}` : ''}</p>
+                                <p class="text-gray-600"><span class="font-medium">Classificação:</span> ${evento.classificacaoEtaria}</p>
+                                <p class="text-gray-600"><span class="font-medium">Entrada:</span> ${evento.gratuito === 'Sim' ? 'Gratuita' : 'Paga'}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600"><span class="font-medium">Frequência:</span> ${evento.frequencia}</p>
+                                <p class="text-gray-600"><span class="font-medium">Libras:</span> ${evento.libras}</p>
+                                <p class="text-gray-600"><span class="font-medium">Áudio Descrição:</span> ${evento.audioDescricao}</p>
+                            </div>
+                        </div>
+
+                        ${evento.descricao ? `<p class="mt-4 text-gray-700 bg-gray-50 p-3 rounded">${evento.descricao}</p>` : ''}
+
+                        ${evento.tags ? `
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                ${evento.tags.split(',').map(tag => `<span class="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs">#${tag.trim()}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportarDados() {
+            const filtroBiblioteca = document.getElementById('filtroBiblioteca').value;
+            const eventosFiltrados = filtroBiblioteca 
+                ? eventos.filter(e => e.biblioteca === filtroBiblioteca)
+                : eventos;
+
+            if (eventosFiltrados.length === 0) {
+                alert('Nenhum evento para exportar!');
+                return;
+            }
+
+            let texto = '=== PROGRAMAÇÃO CULTURAL - BIBLIOTECAS DE SÃO BERNARDO DO CAMPO ===\n\n';
+            
+            eventosFiltrados.forEach((evento, index) => {
+                const data = new Date(evento.dataInicial + 'T00:00');
+                const dataFormatada = data.toLocaleDateString('pt-BR');
+                
+                texto += `EVENTO ${index + 1}\n`;
+                texto += `─────────────────────────────────────────\n`;
+                texto += `Biblioteca: ${evento.biblioteca}\n`;
+                texto += `Nome do Evento: ${evento.nomeEvento}\n`;
+                if (evento.subtitulo) texto += `Subtítulo: ${evento.subtitulo}\n`;
+                texto += `Linguagem Cultural: ${evento.linguagemCultural}\n`;
+                texto += `Descrição: ${evento.descricao}\n`;
+                texto += `Classificação Etária: ${evento.classificacaoEtaria}\n`;
+                if (evento.link) texto += `Link: ${evento.link}\n`;
+                texto += `Data: ${dataFormatada}\n`;
+                if (evento.horario) texto += `Horário: ${evento.horario}\n`;
+                texto += `Entrada: ${evento.gratuito === 'Sim' ? 'Gratuita' : 'Paga'}\n`;
+                texto += `Frequência: ${evento.frequencia}\n`;
+                if (evento.totalPublico) texto += `Total de Público: ${evento.totalPublico}\n`;
+                if (evento.telefone) texto += `Telefone: ${evento.telefone}\n`;
+                if (evento.inscricao) texto += `Inscrições: ${evento.inscricao}\n`;
+                texto += `Acessibilidade:\n`;
+                texto += `  - Libras: ${evento.libras}\n`;
+                texto += `  - Áudio Descrição: ${evento.audioDescricao}\n`;
+                if (evento.tags) texto += `Tags: ${evento.tags}\n`;
+                texto += `\n\n`;
+            });
+
+            const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `programacao-bibliotecas-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Inicializar ao carregar a página
+        window.addEventListener('DOMContentLoaded', inicializar);
+    </script>
+</body>
+</html>

@@ -24,19 +24,74 @@
             height: 20px;
             cursor: pointer;
         }
+        .logo-header {
+            max-height: 70px;
+            width: auto;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
     
-    <!-- Header -->
+    <!-- Header com Logo -->
     <div class="gradient-header text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-6">
-            <div class="flex items-center gap-4">
-                <div class="w-1 h-16 rainbow-bar rounded-full"></div>
-                <div>
-                    <h1 class="text-3xl font-bold">Sistema de Eventos Culturais</h1>
-                    <p class="text-blue-100 mt-1">Rede de Bibliotecas Públicas Municipais de São Bernardo do Campo</p>
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-1 h-16 rainbow-bar rounded-full"></div>
+                    <div>
+                        <h1 class="text-3xl font-bold">Sistema de Eventos Culturais</h1>
+                        <p class="text-blue-100 mt-1">Rede de Bibliotecas Públicas Municipais de São Bernardo do Campo</p>
+                    </div>
                 </div>
+                <div class="flex items-center gap-4">
+                    <img id="logoHeader" class="logo-header" alt="Logo SBC" style="display: none;">
+                    <button id="btnConfigurar" onclick="abrirConfiguracao()" class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all text-sm font-medium">
+                        ⚙️ Configurar Google Sheets
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuração -->
+    <div id="modalConfiguracao" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">⚙️ Configuração do Google Sheets</h2>
+                <button onclick="fecharConfiguracao()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="font-bold text-blue-900 mb-2">📋 Instruções:</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-sm text-blue-800">
+                        <li>Crie uma nova planilha no Google Sheets</li>
+                        <li>Clique em "Compartilhar" e defina como "Qualquer pessoa com o link pode editar"</li>
+                        <li>Copie o ID da planilha da URL (exemplo: docs.google.com/spreadsheets/d/<strong>ID_AQUI</strong>/edit)</li>
+                        <li>Cole o ID no campo abaixo</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ID da Planilha Google Sheets</label>
+                    <input type="text" id="sheetId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Cole o ID da planilha aqui">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome da Aba (Sheet)</label>
+                    <input type="text" id="sheetName" value="Eventos" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button onclick="testarConexao()" class="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all font-medium">
+                        🔍 Testar Conexão
+                    </button>
+                    <button onclick="salvarConfiguracao()" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium">
+                        💾 Salvar e Sincronizar
+                    </button>
+                </div>
+
+                <div id="statusConexao" class="hidden mt-4 p-3 rounded-lg"></div>
             </div>
         </div>
     </div>
@@ -187,15 +242,7 @@
                         <option value="Voluntariado">Voluntariado</option>
                     </select>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">O evento é gratuito?</label>
-                    <select id="gratuito" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="Sim">Sim</option>
-                        <option value="Não">Não</option>
-                    </select>
-                </div>
-
+                
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Total de Público (opcional)</label>
                     <input type="number" id="totalPublico" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Ex: 50">
@@ -205,12 +252,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Telefone para Informações (opcional)</label>
                     <input type="tel" id="telefone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="(11) 1234-5678">
                 </div>
-
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Informações sobre Inscrição (opcional)</label>
-                    <textarea id="inscricao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="2" placeholder="Como fazer a inscrição..."></textarea>
-                </div>
-
+            
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Acessibilidade - Libras</label>
                     <select id="libras" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -253,6 +295,13 @@
     </div>
 
     <script>
+        // Configuração do Google Sheets
+        let sheetsConfig = {
+            sheetId: localStorage.getItem('sheets-config-id') || '',
+            sheetName: localStorage.getItem('sheets-config-name') || 'Eventos',
+            imageUrl: 'https://i.imgur.com/yourimageurl.png' // Altere para a URL da sua imagem
+        };
+
         // Dados do sistema
         const bibliotecas = [
             'Biblioteca de Arte Ilva Aceto Maranesi',
@@ -279,6 +328,158 @@
 
         let eventos = [];
         let eventoEditandoId = null;
+
+        // Carregar logo no header
+        function carregarLogo() {
+            const logo = document.getElementById('logoHeader');
+            logo.src = sheetsConfig.imageUrl;
+            logo.style.display = 'block';
+            logo.onerror = () => { logo.style.display = 'none'; };
+        }
+
+        // Funções do Google Sheets
+        function abrirConfiguracao() {
+            document.getElementById('modalConfiguracao').style.display = 'flex';
+            document.getElementById('sheetId').value = sheetsConfig.sheetId;
+            document.getElementById('sheetName').value = sheetsConfig.sheetName;
+        }
+
+        function fecharConfiguracao() {
+            document.getElementById('modalConfiguracao').style.display = 'none';
+            document.getElementById('statusConexao').classList.add('hidden');
+        }
+
+        function mostrarStatus(mensagem, tipo) {
+            const status = document.getElementById('statusConexao');
+            status.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800');
+            
+            if (tipo === 'sucesso') {
+                status.classList.add('bg-green-100', 'text-green-800');
+            } else {
+                status.classList.add('bg-red-100', 'text-red-800');
+            }
+            
+            status.textContent = mensagem;
+        }
+
+        async function testarConexao() {
+            const sheetId = document.getElementById('sheetId').value.trim();
+            const sheetName = document.getElementById('sheetName').value.trim();
+
+            if (!sheetId) {
+                mostrarStatus('❌ Por favor, insira o ID da planilha', 'erro');
+                return;
+            }
+
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) throw new Error('Erro na conexão');
+                
+                mostrarStatus('✅ Conexão bem-sucedida! A planilha está acessível.', 'sucesso');
+            } catch (error) {
+                mostrarStatus('❌ Erro: Verifique se o ID está correto e se a planilha está pública para edição', 'erro');
+            }
+        }
+
+        function salvarConfiguracao() {
+            const sheetId = document.getElementById('sheetId').value.trim();
+            const sheetName = document.getElementById('sheetName').value.trim();
+
+            if (!sheetId) {
+                mostrarStatus('❌ Por favor, insira o ID da planilha', 'erro');
+                return;
+            }
+
+            sheetsConfig.sheetId = sheetId;
+            sheetsConfig.sheetName = sheetName;
+            
+            localStorage.setItem('sheets-config-id', sheetId);
+            localStorage.setItem('sheets-config-name', sheetName);
+
+            sincronizarComSheets();
+            fecharConfiguracao();
+            alert('✅ Configuração salva! Os dados serão sincronizados com o Google Sheets.');
+        }
+
+        async function sincronizarComSheets() {
+            if (!sheetsConfig.sheetId) {
+                console.log('Google Sheets não configurado');
+                return;
+            }
+
+            try {
+                await carregarDeSheets();
+                await salvarEmSheets();
+            } catch (error) {
+                console.error('Erro na sincronização:', error);
+            }
+        }
+
+        async function carregarDeSheets() {
+            if (!sheetsConfig.sheetId) return;
+
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${sheetsConfig.sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetsConfig.sheetName)}`;
+                const response = await fetch(url);
+                const text = await response.text();
+                const json = JSON.parse(text.substring(47).slice(0, -2));
+
+                if (json.table.rows.length > 1) {
+                    eventos = json.table.rows.slice(1).map(row => {
+                        const cols = row.c;
+                        return {
+                            id: cols[0]?.v || Date.now().toString(),
+                            biblioteca: cols[1]?.v || '',
+                            nomeEvento: cols[2]?.v || '',
+                            subtitulo: cols[3]?.v || '',
+                            linguagemCultural: cols[4]?.v || '',
+                            descricao: cols[5]?.v || '',
+                            classificacaoEtaria: cols[6]?.v || 'Livre',
+                            link: cols[7]?.v || '',
+                            dataInicial: cols[8]?.v || '',
+                            horarioInicio: cols[9]?.v || '',
+                            horarioFim: cols[10]?.v || '',
+                            frequencia: cols[11]?.v || 'Uma vez',
+                            temParceria: cols[12]?.v === 'true',
+                            tipoParceria: cols[13]?.v || '',
+                            totalPublico: cols[14]?.v || '',
+                            telefone: cols[15]?.v || '',
+                            libras: cols[16]?.v || 'Não',
+                            audioDescricao: cols[17]?.v || 'Não',
+                            tags: cols[18]?.v || '',
+                            dataCriacao: cols[19]?.v || new Date().toISOString()
+                        };
+                    });
+                    renderizarEventos();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar do Sheets:', error);
+            }
+        }
+
+        async function salvarEmSheets() {
+            if (!sheetsConfig.sheetId || eventos.length === 0) return;
+
+            const cabecalho = [
+                'ID', 'Biblioteca', 'Nome do Evento', 'Subtítulo', 'Linguagem Cultural',
+                'Descrição', 'Classificação Etária', 'Link', 'Data', 'Horário Início',
+                'Horário Fim', 'Frequência', 'Tem Parceria', 'Tipo Parceria',
+                'Total Público', 'Telefone', 'Libras', 'Áudio Descrição', 'Tags', 'Data Criação'
+            ];
+
+            const linhas = eventos.map(e => [
+                e.id, e.biblioteca, e.nomeEvento, e.subtitulo, e.linguagemCultural,
+                e.descricao, e.classificacaoEtaria, e.link, e.dataInicial, e.horarioInicio,
+                e.horarioFim, e.frequencia, e.temParceria.toString(), e.tipoParceria,
+                e.totalPublico, e.telefone, e.libras, e.audioDescricao, e.tags, e.dataCriacao
+            ]);
+
+            const dados = [cabecalho, ...linhas];
+            
+            console.log('Dados salvos localmente. Para salvar no Sheets, use Google Apps Script ou API.');
+        }
 
         function toggleParceria() {
             const checkbox = document.getElementById('temParceria');
@@ -312,365 +513,12 @@
             }
 
             const [ano, mes] = mesAno.split('-');
+            const mesesNome = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
             const eventosFiltrados = eventos.filter(evento => {
                 const dataEvento = new Date(evento.dataInicial + 'T00:00');
                 const matchBiblioteca = !biblioteca || evento.biblioteca === biblioteca;
                 const matchMes = dataEvento.getFullYear() === parseInt(ano) && 
                                  (dataEvento.getMonth() + 1) === parseInt(mes);
                 return matchBiblioteca && matchMes;
-            });
-
-            if (eventosFiltrados.length === 0) {
-                alert('Nenhum evento encontrado para os filtros selecionados!');
-                return;
-            }
-
-            // Gerar PDF
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            let y = 20;
-            doc.setFontSize(16);
-            doc.text('RELATÓRIO DE EVENTOS', 105, y, { align: 'center' });
-            y += 7;
-            doc.setFontSize(12);
-            doc.text('Rede de Bibliotecas Públicas Municipais de São Bernardo do Campo', 105, y, { align: 'center' });
-            y += 10;
-            
-            doc.setFontSize(10);
-            doc.text(`Biblioteca: ${biblioteca || 'Todas'}`, 20, y);
-            y += 6;
-            doc.text(`Período: ${mes}/${ano}`, 20, y);
-            y += 6;
-            doc.text(`Total de eventos: ${eventosFiltrados.length}`, 20, y);
-            y += 10;
-
-            eventosFiltrados.forEach((evento, index) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
-
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'bold');
-                doc.text(`${index + 1}. ${evento.nomeEvento}`, 20, y);
-                y += 6;
-                
-                doc.setFontSize(9);
-                doc.setFont(undefined, 'normal');
-                
-                const data = new Date(evento.dataInicial + 'T00:00');
-                const dataFormatada = data.toLocaleDateString('pt-BR');
-                
-                const linhas = [
-                    `Biblioteca: ${evento.biblioteca}`,
-                    `Data: ${dataFormatada}`,
-                    `Horário: ${evento.horarioInicio || 'Não informado'}${evento.horarioFim ? ' às ' + evento.horarioFim : ''}`,
-                    `Linguagem Cultural: ${evento.linguagemCultural}`,
-                    `Classificação: ${evento.classificacaoEtaria}`,
-                    `Entrada: ${evento.gratuito === 'Sim' ? 'Gratuita' : 'Paga'}`,
-                    `Frequência: ${evento.frequencia}`,
-                ];
-
-                if (evento.temParceria && evento.tipoParceria) {
-                    linhas.push(`Parceria: ${evento.tipoParceria}`);
-                }
-
-                if (evento.descricao) {
-                    linhas.push(`Descrição: ${evento.descricao}`);
-                }
-
-                linhas.forEach(linha => {
-                    if (y > 280) {
-                        doc.addPage();
-                        y = 20;
-                    }
-                    doc.text(linha, 25, y);
-                    y += 5;
-                });
-
-                y += 3;
-            });
-
-            const nomeArquivo = `relatorio-${biblioteca ? biblioteca.replace(/\s+/g, '-').toLowerCase() : 'todas'}-${mesAno}.pdf`;
-            doc.save(nomeArquivo);
-            fecharRelatorios();
-        }
-
-        function inicializar() {
-            preencherSelects();
-            carregarEventos();
-            
-            document.getElementById('filtroBiblioteca').addEventListener('change', renderizarEventos);
-            document.getElementById('campoBusca').addEventListener('input', renderizarEventos);
-        }
-
-        function preencherSelects() {
-            const selectBiblioteca = document.getElementById('biblioteca');
-            const selectFiltroBiblioteca = document.getElementById('filtroBiblioteca');
-            const selectRelBiblioteca = document.getElementById('relBiblioteca');
-            
-            selectBiblioteca.innerHTML = '<option value="">Selecione a biblioteca</option>';
-            bibliotecas.forEach(bib => {
-                selectBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
-                selectFiltroBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
-                selectRelBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
-            });
-
-            const selectLinguagem = document.getElementById('linguagemCultural');
-            selectLinguagem.innerHTML = '<option value="">Selecione a linguagem</option>';
-            linguagensCulturais.forEach(ling => {
-                selectLinguagem.innerHTML += `<option value="${ling}">${ling}</option>`;
-            });
-
-            const selectClassificacao = document.getElementById('classificacaoEtaria');
-            classificacoesEtarias.forEach(class_etaria => {
-                selectClassificacao.innerHTML += `<option value="${class_etaria}">${class_etaria}</option>`;
-            });
-
-            const selectFrequencia = document.getElementById('frequencia');
-            frequencias.forEach(freq => {
-                selectFrequencia.innerHTML += `<option value="${freq}">${freq}</option>`;
-            });
-        }
-
-        function carregarEventos() {
-            const eventosStorage = localStorage.getItem('eventos-bibliotecas-sbc');
-            if (eventosStorage) {
-                eventos = JSON.parse(eventosStorage);
-            }
-            renderizarEventos();
-        }
-
-        function salvarNoStorage() {
-            localStorage.setItem('eventos-bibliotecas-sbc', JSON.stringify(eventos));
-        }
-
-        function abrirFormulario() {
-            document.getElementById('formularioEvento').classList.remove('hidden');
-            document.getElementById('tituloFormulario').textContent = 'Cadastrar Novo Evento';
-            document.getElementById('btnSalvarTexto').textContent = 'Cadastrar Evento';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function fecharFormulario() {
-            document.getElementById('formularioEvento').classList.add('hidden');
-            limparFormulario();
-        }
-
-        function limparFormulario() {
-            const filtroBiblioteca = document.getElementById('filtroBiblioteca').value;
-            
-            document.getElementById('biblioteca').value = filtroBiblioteca;
-            document.getElementById('nomeEvento').value = '';
-            document.getElementById('subtitulo').value = '';
-            document.getElementById('linguagemCultural').value = '';
-            document.getElementById('descricao').value = '';
-            document.getElementById('classificacaoEtaria').value = 'Livre';
-            document.getElementById('link').value = '';
-            document.getElementById('dataInicial').value = '';
-            document.getElementById('horarioInicio').value = '';
-            document.getElementById('horarioFim').value = '';
-            document.getElementById('gratuito').value = 'Sim';
-            document.getElementById('frequencia').value = 'Uma vez';
-            document.getElementById('totalPublico').value = '';
-            document.getElementById('telefone').value = '';
-            document.getElementById('inscricao').value = '';
-            document.getElementById('libras').value = 'Não';
-            document.getElementById('audioDescricao').value = 'Não';
-            document.getElementById('tags').value = '';
-            document.getElementById('temParceria').checked = false;
-            document.getElementById('tipoParceria').value = '';
-            document.getElementById('campoParceria').classList.add('hidden');
-            
-            eventoEditandoId = null;
-        }
-
-        function salvarEvento() {
-            const biblioteca = document.getElementById('biblioteca').value;
-            const nomeEvento = document.getElementById('nomeEvento').value;
-            const linguagemCultural = document.getElementById('linguagemCultural').value;
-            const dataInicial = document.getElementById('dataInicial').value;
-
-            if (!biblioteca || !nomeEvento || !linguagemCultural || !dataInicial) {
-                alert('Por favor, preencha os campos obrigatórios: Biblioteca, Nome do Evento, Linguagem Cultural e Data');
-                return;
-            }
-
-            const evento = {
-                id: eventoEditandoId || Date.now().toString(),
-                biblioteca: biblioteca,
-                nomeEvento: nomeEvento,
-                subtitulo: document.getElementById('subtitulo').value,
-                linguagemCultural: linguagemCultural,
-                descricao: document.getElementById('descricao').value,
-                classificacaoEtaria: document.getElementById('classificacaoEtaria').value,
-                link: document.getElementById('link').value,
-                dataInicial: dataInicial,
-                horarioInicio: document.getElementById('horarioInicio').value,
-                horarioFim: document.getElementById('horarioFim').value,
-                gratuito: document.getElementById('gratuito').value,
-                frequencia: document.getElementById('frequencia').value,
-                temParceria: document.getElementById('temParceria').checked,
-                tipoParceria: document.getElementById('temParceria').checked ? document.getElementById('tipoParceria').value : '',
-                totalPublico: document.getElementById('totalPublico').value,
-                telefone: document.getElementById('telefone').value,
-                inscricao: document.getElementById('inscricao').value,
-                libras: document.getElementById('libras').value,
-                audioDescricao: document.getElementById('audioDescricao').value,
-                tags: document.getElementById('tags').value,
-                dataCriacao: eventoEditandoId ? eventos.find(e => e.id === eventoEditandoId).dataCriacao : new Date().toISOString()
-            };
-
-            if (eventoEditandoId) {
-                const index = eventos.findIndex(e => e.id === eventoEditandoId);
-                eventos[index] = evento;
-                alert('Evento atualizado com sucesso!');
-            } else {
-                eventos.push(evento);
-                alert('Evento cadastrado com sucesso!');
-            }
-
-            salvarNoStorage();
-            renderizarEventos();
-            fecharFormulario();
-        }
-
-        function editarEvento(id) {
-            const evento = eventos.find(e => e.id === id);
-            if (!evento) return;
-
-            eventoEditandoId = id;
-            
-            document.getElementById('biblioteca').value = evento.biblioteca;
-            document.getElementById('nomeEvento').value = evento.nomeEvento;
-            document.getElementById('subtitulo').value = evento.subtitulo;
-            document.getElementById('linguagemCultural').value = evento.linguagemCultural;
-            document.getElementById('descricao').value = evento.descricao;
-            document.getElementById('classificacaoEtaria').value = evento.classificacaoEtaria;
-            document.getElementById('link').value = evento.link;
-            document.getElementById('dataInicial').value = evento.dataInicial;
-            document.getElementById('horarioInicio').value = evento.horarioInicio;
-            document.getElementById('horarioFim').value = evento.horarioFim;
-            document.getElementById('gratuito').value = evento.gratuito;
-            document.getElementById('frequencia').value = evento.frequencia;
-            document.getElementById('totalPublico').value = evento.totalPublico;
-            document.getElementById('telefone').value = evento.telefone;
-            document.getElementById('inscricao').value = evento.inscricao;
-            document.getElementById('libras').value = evento.libras;
-            document.getElementById('audioDescricao').value = evento.audioDescricao;
-            document.getElementById('tags').value = evento.tags;
-            document.getElementById('temParceria').checked = evento.temParceria || false;
-            document.getElementById('tipoParceria').value = evento.tipoParceria || '';
-            
-            if (evento.temParceria) {
-                document.getElementById('campoParceria').classList.remove('hidden');
-            }
-
-            document.getElementById('formularioEvento').classList.remove('hidden');
-            document.getElementById('tituloFormulario').textContent = 'Editar Evento';
-            document.getElementById('btnSalvarTexto').textContent = 'Atualizar Evento';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function excluirEvento(id) {
-            if (confirm('Tem certeza que deseja excluir este evento?')) {
-                eventos = eventos.filter(e => e.id !== id);
-                salvarNoStorage();
-                renderizarEventos();
-                alert('Evento excluído com sucesso!');
-            }
-        }
-
-        function renderizarEventos() {
-            const filtroBiblioteca = document.getElementById('filtroBiblioteca').value;
-            const busca = document.getElementById('campoBusca').value.toLowerCase();
-
-            const eventosFiltrados = eventos.filter(evento => {
-                const matchBiblioteca = !filtroBiblioteca || evento.biblioteca === filtroBiblioteca;
-                const matchBusca = !busca || 
-                    evento.nomeEvento.toLowerCase().includes(busca) ||
-                    evento.descricao.toLowerCase().includes(busca);
-                return matchBiblioteca && matchBusca;
-            });
-
-            const container = document.getElementById('listaEventos');
-            document.getElementById('contadorEventos').textContent = `(${eventosFiltrados.length})`;
-
-            if (eventosFiltrados.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white rounded-lg shadow-md p-12 text-center">
-                        <div class="text-6xl mb-4">📅</div>
-                        <p class="text-gray-500 text-lg">
-                            ${filtroBiblioteca ? 'Nenhum evento cadastrado para esta biblioteca.' : 'Nenhum evento cadastrado ainda.'}
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = eventosFiltrados.map(evento => {
-                const data = new Date(evento.dataInicial + 'T00:00');
-                const dataFormatada = data.toLocaleDateString('pt-BR');
-                
-                return `
-                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-6 border-l-4 border-orange-400 mb-4">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex-1">
-                                <h3 class="text-xl font-bold text-gray-800">${evento.nomeEvento}</h3>
-                                ${evento.subtitulo ? `<p class="text-gray-600 italic">${evento.subtitulo}</p>` : ''}
-                                <div class="flex flex-wrap items-center gap-2 mt-2">
-                                    <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                                        ${evento.biblioteca}
-                                    </span>
-                                    <span class="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                                        ${evento.linguagemCultural}
-                                    </span>
-                                    ${evento.temParceria && evento.tipoParceria ? `
-                                        <span class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                                            Parceria: ${evento.tipoParceria}
-                                        </span>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="editarEvento('${evento.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Editar">
-                                    ✏️
-                                </button>
-                                <button onclick="excluirEvento('${evento.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Excluir">
-                                    🗑️
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="grid md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <p class="text-gray-600"><span class="font-medium">Data:</span> ${dataFormatada}</p>
-                                ${evento.horarioInicio ? `<p class="text-gray-600"><span class="font-medium">Horário:</span> ${evento.horarioInicio}${evento.horarioFim ? ' às ' + evento.horarioFim : ''}</p>` : ''}
-                                <p class="text-gray-600"><span class="font-medium">Classificação:</span> ${evento.classificacaoEtaria}</p>
-                            
-                            </div>
-                            <div>
-                                <p class="text-gray-600"><span class="font-medium">Frequência:</span> ${evento.frequencia}</p>
-                                <p class="text-gray-600"><span class="font-medium">Libras:</span> ${evento.libras}</p>
-                                <p class="text-gray-600"><span class="font-medium">Áudio Descrição:</span> ${evento.audioDescricao}</p>
-                            </div>
-                        </div>
-
-                        ${evento.descricao ? `<p class="mt-4 text-gray-700 bg-gray-50 p-3 rounded">${evento.descricao}</p>` : ''}
-
-                        ${evento.tags ? `
-                            <div class="mt-3 flex flex-wrap gap-2">
-                                ${evento.tags.split(',').map(tag => `<span class="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs">#${tag.trim()}</span>`).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Inicializar ao carregar a página
-        window.addEventListener('DOMContentLoaded', inicializar);
-    </script>
-</body>
-</html>

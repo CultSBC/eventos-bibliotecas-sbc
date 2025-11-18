@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Eventos - Bibliotecas SBC</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         .gradient-header {
             background: linear-gradient(to right, #2563eb, #1d4ed8);
@@ -18,6 +19,11 @@
         .rainbow-bar {
             background: linear-gradient(to bottom, #fb923c, #fbbf24, #4ade80);
         }
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen">
@@ -29,7 +35,7 @@
                 <div class="w-1 h-16 rainbow-bar rounded-full"></div>
                 <div>
                     <h1 class="text-3xl font-bold">Sistema de Eventos Culturais</h1>
-                    <p class="text-blue-100 mt-1">Bibliotecas Públicas de São Bernardo do Campo</p>
+                    <p class="text-blue-100 mt-1">Rede de Bibliotecas Públicas Municipais de São Bernardo do Campo</p>
                 </div>
             </div>
         </div>
@@ -40,7 +46,7 @@
         
         <!-- Filtros e Ações -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div class="grid md:grid-cols-3 gap-4">
+            <div class="grid md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Biblioteca</label>
                     <select id="filtroBiblioteca" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -53,13 +59,49 @@
                     <input type="text" id="campoBusca" placeholder="Digite o nome do evento..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
-                <div class="flex items-end gap-2">
-                    <button onclick="abrirFormulario()" class="flex-1 gradient-button text-white px-4 py-2 rounded-lg transition-all font-medium">
+                <div class="flex items-end">
+                    <button onclick="abrirFormulario()" class="w-full gradient-button text-white px-4 py-2 rounded-lg transition-all font-medium">
                         ➕ Novo Evento
                     </button>
-                    <button onclick="exportarDados()" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-all" title="Exportar Programação">
-                        ⬇️
+                </div>
+
+                <div class="flex items-end">
+                    <button onclick="abrirRelatorios()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all font-medium">
+                        📊 Relatórios
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Relatórios -->
+        <div id="modalRelatorios" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">📊 Gerar Relatório</h2>
+                    <button onclick="fecharRelatorios()" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Biblioteca</label>
+                        <select id="relBiblioteca" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todas as Bibliotecas</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mês/Ano</label>
+                        <input type="month" id="relMes" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button onclick="fecharRelatorios()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                            Cancelar
+                        </button>
+                        <button onclick="gerarRelatorioPDF()" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium">
+                            Gerar PDF
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,8 +157,35 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Horário</label>
-                    <input type="time" id="horario" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Frequência do Evento</label>
+                    <select id="frequencia" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Horário de Início</label>
+                    <input type="time" id="horarioInicio" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Horário de Fim</label>
+                    <input type="time" id="horarioFim" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="temParceria" class="checkbox-custom" onchange="toggleParceria()">
+                        <span class="text-sm font-medium text-gray-700">Este evento possui alguma Parceria?</span>
+                    </label>
+                </div>
+
+                <div id="campoParceria" class="md:col-span-2 hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Parceria</label>
+                    <select id="tipoParceria" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecione o tipo de parceria</option>
+                        <option value="CCBEU">CCBEU</option>
+                        <option value="ProAC">ProAC</option>
+                        <option value="Voluntariado">Voluntariado</option>
+                    </select>
                 </div>
 
                 <div>
@@ -125,11 +194,6 @@
                         <option value="Sim">Sim</option>
                         <option value="Não">Não</option>
                     </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Frequência do Evento</label>
-                    <select id="frequencia" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                 </div>
 
                 <div>
@@ -149,12 +213,18 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Acessibilidade - Libras</label>
-                    <select id="libras" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                    <select id="libras" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Acessibilidade - Áudio Descrição</label>
-                    <select id="audioDescricao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                    <select id="audioDescricao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
                 </div>
 
                 <div class="md:col-span-2">
@@ -206,12 +276,127 @@
 
         const classificacoesEtarias = ['Livre', '10 anos', '12 anos', '14 anos', '16 anos', '18 anos'];
         const frequencias = ['Uma vez', 'Semanal', 'Todos os dias'];
-        const opcoesSN = ['Sim', 'Não', 'Não Informado'];
 
         let eventos = [];
         let eventoEditandoId = null;
 
-        // Inicializar sistema
+        function toggleParceria() {
+            const checkbox = document.getElementById('temParceria');
+            const campo = document.getElementById('campoParceria');
+            if (checkbox.checked) {
+                campo.classList.remove('hidden');
+            } else {
+                campo.classList.add('hidden');
+                document.getElementById('tipoParceria').value = '';
+            }
+        }
+
+        function abrirRelatorios() {
+            document.getElementById('modalRelatorios').style.display = 'flex';
+            const hoje = new Date();
+            const mesAtual = hoje.toISOString().substr(0, 7);
+            document.getElementById('relMes').value = mesAtual;
+        }
+
+        function fecharRelatorios() {
+            document.getElementById('modalRelatorios').style.display = 'none';
+        }
+
+        function gerarRelatorioPDF() {
+            const biblioteca = document.getElementById('relBiblioteca').value;
+            const mesAno = document.getElementById('relMes').value;
+
+            if (!mesAno) {
+                alert('Por favor, selecione o mês/ano para o relatório');
+                return;
+            }
+
+            const [ano, mes] = mesAno.split('-');
+            const eventosFiltrados = eventos.filter(evento => {
+                const dataEvento = new Date(evento.dataInicial + 'T00:00');
+                const matchBiblioteca = !biblioteca || evento.biblioteca === biblioteca;
+                const matchMes = dataEvento.getFullYear() === parseInt(ano) && 
+                                 (dataEvento.getMonth() + 1) === parseInt(mes);
+                return matchBiblioteca && matchMes;
+            });
+
+            if (eventosFiltrados.length === 0) {
+                alert('Nenhum evento encontrado para os filtros selecionados!');
+                return;
+            }
+
+            // Gerar PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let y = 20;
+            doc.setFontSize(16);
+            doc.text('RELATÓRIO DE EVENTOS', 105, y, { align: 'center' });
+            y += 7;
+            doc.setFontSize(12);
+            doc.text('Rede de Bibliotecas Públicas Municipais de São Bernardo do Campo', 105, y, { align: 'center' });
+            y += 10;
+            
+            doc.setFontSize(10);
+            doc.text(`Biblioteca: ${biblioteca || 'Todas'}`, 20, y);
+            y += 6;
+            doc.text(`Período: ${mes}/${ano}`, 20, y);
+            y += 6;
+            doc.text(`Total de eventos: ${eventosFiltrados.length}`, 20, y);
+            y += 10;
+
+            eventosFiltrados.forEach((evento, index) => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${index + 1}. ${evento.nomeEvento}`, 20, y);
+                y += 6;
+                
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'normal');
+                
+                const data = new Date(evento.dataInicial + 'T00:00');
+                const dataFormatada = data.toLocaleDateString('pt-BR');
+                
+                const linhas = [
+                    `Biblioteca: ${evento.biblioteca}`,
+                    `Data: ${dataFormatada}`,
+                    `Horário: ${evento.horarioInicio || 'Não informado'}${evento.horarioFim ? ' às ' + evento.horarioFim : ''}`,
+                    `Linguagem Cultural: ${evento.linguagemCultural}`,
+                    `Classificação: ${evento.classificacaoEtaria}`,
+                    `Entrada: ${evento.gratuito === 'Sim' ? 'Gratuita' : 'Paga'}`,
+                    `Frequência: ${evento.frequencia}`,
+                ];
+
+                if (evento.temParceria && evento.tipoParceria) {
+                    linhas.push(`Parceria: ${evento.tipoParceria}`);
+                }
+
+                if (evento.descricao) {
+                    linhas.push(`Descrição: ${evento.descricao}`);
+                }
+
+                linhas.forEach(linha => {
+                    if (y > 280) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    doc.text(linha, 25, y);
+                    y += 5;
+                });
+
+                y += 3;
+            });
+
+            const nomeArquivo = `relatorio-${biblioteca ? biblioteca.replace(/\s+/g, '-').toLowerCase() : 'todas'}-${mesAno}.pdf`;
+            doc.save(nomeArquivo);
+            fecharRelatorios();
+        }
+
         function inicializar() {
             preencherSelects();
             carregarEventos();
@@ -223,11 +408,13 @@
         function preencherSelects() {
             const selectBiblioteca = document.getElementById('biblioteca');
             const selectFiltroBiblioteca = document.getElementById('filtroBiblioteca');
+            const selectRelBiblioteca = document.getElementById('relBiblioteca');
             
             selectBiblioteca.innerHTML = '<option value="">Selecione a biblioteca</option>';
             bibliotecas.forEach(bib => {
                 selectBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
                 selectFiltroBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
+                selectRelBiblioteca.innerHTML += `<option value="${bib}">${bib}</option>`;
             });
 
             const selectLinguagem = document.getElementById('linguagemCultural');
@@ -244,13 +431,6 @@
             const selectFrequencia = document.getElementById('frequencia');
             frequencias.forEach(freq => {
                 selectFrequencia.innerHTML += `<option value="${freq}">${freq}</option>`;
-            });
-
-            const selectLibras = document.getElementById('libras');
-            const selectAudio = document.getElementById('audioDescricao');
-            opcoesSN.forEach(op => {
-                selectLibras.innerHTML += `<option value="${op}">${op}</option>`;
-                selectAudio.innerHTML += `<option value="${op}">${op}</option>`;
             });
         }
 
@@ -289,15 +469,19 @@
             document.getElementById('classificacaoEtaria').value = 'Livre';
             document.getElementById('link').value = '';
             document.getElementById('dataInicial').value = '';
-            document.getElementById('horario').value = '';
+            document.getElementById('horarioInicio').value = '';
+            document.getElementById('horarioFim').value = '';
             document.getElementById('gratuito').value = 'Sim';
             document.getElementById('frequencia').value = 'Uma vez';
             document.getElementById('totalPublico').value = '';
             document.getElementById('telefone').value = '';
             document.getElementById('inscricao').value = '';
-            document.getElementById('libras').value = 'Não Informado';
-            document.getElementById('audioDescricao').value = 'Não Informado';
+            document.getElementById('libras').value = 'Não';
+            document.getElementById('audioDescricao').value = 'Não';
             document.getElementById('tags').value = '';
+            document.getElementById('temParceria').checked = false;
+            document.getElementById('tipoParceria').value = '';
+            document.getElementById('campoParceria').classList.add('hidden');
             
             eventoEditandoId = null;
         }
@@ -323,9 +507,12 @@
                 classificacaoEtaria: document.getElementById('classificacaoEtaria').value,
                 link: document.getElementById('link').value,
                 dataInicial: dataInicial,
-                horario: document.getElementById('horario').value,
+                horarioInicio: document.getElementById('horarioInicio').value,
+                horarioFim: document.getElementById('horarioFim').value,
                 gratuito: document.getElementById('gratuito').value,
                 frequencia: document.getElementById('frequencia').value,
+                temParceria: document.getElementById('temParceria').checked,
+                tipoParceria: document.getElementById('temParceria').checked ? document.getElementById('tipoParceria').value : '',
                 totalPublico: document.getElementById('totalPublico').value,
                 telefone: document.getElementById('telefone').value,
                 inscricao: document.getElementById('inscricao').value,
@@ -363,7 +550,8 @@
             document.getElementById('classificacaoEtaria').value = evento.classificacaoEtaria;
             document.getElementById('link').value = evento.link;
             document.getElementById('dataInicial').value = evento.dataInicial;
-            document.getElementById('horario').value = evento.horario;
+            document.getElementById('horarioInicio').value = evento.horarioInicio;
+            document.getElementById('horarioFim').value = evento.horarioFim;
             document.getElementById('gratuito').value = evento.gratuito;
             document.getElementById('frequencia').value = evento.frequencia;
             document.getElementById('totalPublico').value = evento.totalPublico;
@@ -372,6 +560,12 @@
             document.getElementById('libras').value = evento.libras;
             document.getElementById('audioDescricao').value = evento.audioDescricao;
             document.getElementById('tags').value = evento.tags;
+            document.getElementById('temParceria').checked = evento.temParceria || false;
+            document.getElementById('tipoParceria').value = evento.tipoParceria || '';
+            
+            if (evento.temParceria) {
+                document.getElementById('campoParceria').classList.remove('hidden');
+            }
 
             document.getElementById('formularioEvento').classList.remove('hidden');
             document.getElementById('tituloFormulario').textContent = 'Editar Evento';
@@ -407,12 +601,9 @@
                 container.innerHTML = `
                     <div class="bg-white rounded-lg shadow-md p-12 text-center">
                         <div class="text-6xl mb-4">📅</div>
-                        <p class="text-gray-500 text-lg mb-4">
+                        <p class="text-gray-500 text-lg">
                             ${filtroBiblioteca ? 'Nenhum evento cadastrado para esta biblioteca.' : 'Nenhum evento cadastrado ainda.'}
                         </p>
-                        <button onclick="abrirFormulario()" class="text-blue-600 hover:text-blue-700 font-medium">
-                            Cadastrar primeiro evento
-                        </button>
                     </div>
                 `;
                 return;
@@ -435,6 +626,11 @@
                                     <span class="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
                                         ${evento.linguagemCultural}
                                     </span>
+                                    ${evento.temParceria && evento.tipoParceria ? `
+                                        <span class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                            Parceria: ${evento.tipoParceria}
+                                        </span>
+                                    ` : ''}
                                 </div>
                             </div>
                             <div class="flex gap-2">
@@ -449,9 +645,10 @@
 
                         <div class="grid md:grid-cols-2 gap-4 text-sm">
                             <div>
-                                <p class="text-gray-600"><span class="font-medium">Data:</span> ${dataFormatada}${evento.horario ? ` às ${evento.horario}` : ''}</p>
+                                <p class="text-gray-600"><span class="font-medium">Data:</span> ${dataFormatada}</p>
+                                ${evento.horarioInicio ? `<p class="text-gray-600"><span class="font-medium">Horário:</span> ${evento.horarioInicio}${evento.horarioFim ? ' às ' + evento.horarioFim : ''}</p>` : ''}
                                 <p class="text-gray-600"><span class="font-medium">Classificação:</span> ${evento.classificacaoEtaria}</p>
-                                <p class="text-gray-600"><span class="font-medium">Entrada:</span> ${evento.gratuito === 'Sim' ? 'Gratuita' : 'Paga'}</p>
+                            
                             </div>
                             <div>
                                 <p class="text-gray-600"><span class="font-medium">Frequência:</span> ${evento.frequencia}</p>
@@ -470,57 +667,6 @@
                     </div>
                 `;
             }).join('');
-        }
-
-        function exportarDados() {
-            const filtroBiblioteca = document.getElementById('filtroBiblioteca').value;
-            const eventosFiltrados = filtroBiblioteca 
-                ? eventos.filter(e => e.biblioteca === filtroBiblioteca)
-                : eventos;
-
-            if (eventosFiltrados.length === 0) {
-                alert('Nenhum evento para exportar!');
-                return;
-            }
-
-            let texto = '=== PROGRAMAÇÃO CULTURAL - BIBLIOTECAS DE SÃO BERNARDO DO CAMPO ===\n\n';
-            
-            eventosFiltrados.forEach((evento, index) => {
-                const data = new Date(evento.dataInicial + 'T00:00');
-                const dataFormatada = data.toLocaleDateString('pt-BR');
-                
-                texto += `EVENTO ${index + 1}\n`;
-                texto += `─────────────────────────────────────────\n`;
-                texto += `Biblioteca: ${evento.biblioteca}\n`;
-                texto += `Nome do Evento: ${evento.nomeEvento}\n`;
-                if (evento.subtitulo) texto += `Subtítulo: ${evento.subtitulo}\n`;
-                texto += `Linguagem Cultural: ${evento.linguagemCultural}\n`;
-                texto += `Descrição: ${evento.descricao}\n`;
-                texto += `Classificação Etária: ${evento.classificacaoEtaria}\n`;
-                if (evento.link) texto += `Link: ${evento.link}\n`;
-                texto += `Data: ${dataFormatada}\n`;
-                if (evento.horario) texto += `Horário: ${evento.horario}\n`;
-                texto += `Entrada: ${evento.gratuito === 'Sim' ? 'Gratuita' : 'Paga'}\n`;
-                texto += `Frequência: ${evento.frequencia}\n`;
-                if (evento.totalPublico) texto += `Total de Público: ${evento.totalPublico}\n`;
-                if (evento.telefone) texto += `Telefone: ${evento.telefone}\n`;
-                if (evento.inscricao) texto += `Inscrições: ${evento.inscricao}\n`;
-                texto += `Acessibilidade:\n`;
-                texto += `  - Libras: ${evento.libras}\n`;
-                texto += `  - Áudio Descrição: ${evento.audioDescricao}\n`;
-                if (evento.tags) texto += `Tags: ${evento.tags}\n`;
-                texto += `\n\n`;
-            });
-
-            const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `programacao-bibliotecas-${new Date().toISOString().split('T')[0]}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
         }
 
         // Inicializar ao carregar a página
